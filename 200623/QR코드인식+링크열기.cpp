@@ -31,7 +31,6 @@ void decode_qrcode()
 	QRCodeDetector detector;
 
 	Mat frame;
-	int flag = 0;
 
 	while (1) 
 	{
@@ -51,18 +50,16 @@ void decode_qrcode()
 			polylines(frame, points, true, Scalar(0, 0, 255), 2);
 			putText(frame, info, Point(10, 30), FONT_HERSHEY_DUPLEX, 1, Scalar(0, 0, 255));
 
-			LPWSTR ws = ConvertToLPWSTR(info);
+			LPWSTR link = ConvertToLPWSTR(info);
 
-			ShellExecuteW(0, 0, ws, 0, 0, 5);
+			ShellExecuteW(0, 0, link, 0, 0, 5);
 
-			flag = 1;
+			return ;
 		}
 
 		imshow("frame", frame);
 		
 		waitKey(1);
-
-		if (flag == 1) break;
 	}
 }
 
