@@ -1,4 +1,4 @@
-import numpy as np
+'''import numpy as np
 import cv2
 from PIL import Image
 import pytesseract
@@ -79,18 +79,7 @@ def auto_scan_image_via_webcam():
 
 if __name__ == '__main__' :
     auto_scan_image_via_webcam()
-
-'''from PIL import Image
-from pytesseract import *
-
-pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
-
-filename = '명함.jpg'
-image = Image.open(filename)
-text = image_to_string(image, lang='kor')
-
-with open("sample.txt", "w") as f:
-    f.write(text)
+'''
 
 try:
     from PIL import Image
@@ -101,32 +90,4 @@ import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
 
 image = Image.open('시은이명함2.jpg')
-print(pytesseract.image_to_string(image, lang='kor+eng'))'''
-
-
-'''import cv2
-from PIL import Image
-import pytesseract
-
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract'
-
-cap = cv2.VideoCapture(0)
-
-while True:
-    # Capture frame-by-frame
-    ret, frame = cap.read()
-
-    # Our operations on the frame come here
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    img = Image.fromarray(gray) # frame으로 넣어도 된다.
-    txt = pytesseract.image_to_string(img, lang='kor+eng')
-    print(txt)
-
-    # Display the resulting frame
-    cv2.imshow('frame', gray)
-    if cv2.waitKey(10) == 27:
-        break
-
-# When everything done, release the capture
-cap.release()
-cv2.destroyAllWindows()'''
+print(pytesseract.image_to_string(image, lang='kor+eng'))
