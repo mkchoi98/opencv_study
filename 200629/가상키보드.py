@@ -178,10 +178,10 @@ width=x2-x1
 height=y2-y1
 term =50
 
+Fs = ["MOM", "DAD", "LOVE", "YOU"]
+
 def process(img_bgr, debug):
     img_result = img_bgr.copy()
-
-    Fs = ["MOM", "DAD", "LOVE", "YOU"]
 
     k11 = (width // 5 * 1 - term + x1, height // 2 - term + y1)
     k12 = (width // 5 * 1 + term + x1, height // 2 + term + y1)
@@ -309,7 +309,7 @@ while True:
         inner_y2.append(height//2-term+y1)
 
     cv.rectangle(img_result,(x1,y1),(x2,y2),(255,0,0),4)
-    Fs=["MOM","DAD","LOVE","YOU"]
+    
     for i in range(4):
         cv.rectangle(img_result,(inner_x1[i],inner_y1[i]),(inner_x2[i],inner_y2[i]),(255,0,0),4)
         cv.putText(img_result, Fs[i], (inner_x1[i]+5,inner_y1[i]-15),
