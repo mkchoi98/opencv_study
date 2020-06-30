@@ -1,4 +1,3 @@
-import pyautogui as gui
 from shapely.geometry import Point
 import cv2 as cv
 import numpy as np
@@ -175,6 +174,9 @@ def getFingerPosition(max_contour, img_result, debug):
 
     return 1, new_points
 
+def listToString(s):
+    str1 = " "
+    return (str1.join(s))
 
 Flag = [0, 0, 0, 0, 0]
 f = open("letter.txt", "w+")
@@ -190,8 +192,14 @@ term = 50
 # Fs = ["MOM", "DAD", "LOVE", "YOU"]
 Fs = ["엄마", "아빠", "LOVE", "YOU"]
 
+txt = []
+
 def process(img_bgr, debug):
     img_result = img_bgr.copy()
+    img = np.zeros((200,400,3),np.uint8)
+
+    img_pil = Image.fromarray(img)
+    draw = ImageDraw.Draw(img_pil)
 
     k11 = (width // 5 * 1 - term + x1, height // 2 - term + y1)
     k12 = (width // 5 * 1 + term + x1, height // 2 + term + y1)
@@ -217,7 +225,7 @@ def process(img_bgr, debug):
     kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (11, 11))  # Elliptical Kernel
     # MORPH_CLOSE: Dilation followed by Erosion; useful in closing small holes inside the foreground objects, or small black points on the object.
     img_binary = cv.morphologyEx(img_binary, cv.MORPH_CLOSE, kernel, 1)
-    cv.imshow("Binary", img_binary)
+    #cv.imshow("Binary", img_binary)
 
     # STEP 4
     contours, hierarchy = cv.findContours(img_binary, cv.RETR_EXTERNAL,
@@ -246,8 +254,7 @@ def process(img_bgr, debug):
                 Flag[0] += 1
                 if Flag[0] % 20 == 19:
                     print(Fs[0])
-                    gui.typewrite(Fs[0] + " ")
-                    f.write(Fs[0] + " ")
+                    txt.append(Fs[0])
             elif key2.contains(Point(point)):
                 Flag[0] = 0
                 Flag[1] += 1
@@ -255,8 +262,7 @@ def process(img_bgr, debug):
                 Flag[3] = 0
                 if Flag[1] % 20 == 19:
                     print(Fs[1])
-                    gui.typewrite(Fs[1] + " ")
-                    f.write(Fs[1] + " ")
+                    txt.append(Fs[1])
             elif key3.contains(Point(point)):
                 Flag[0] = 0
                 Flag[1] = 0
@@ -264,8 +270,7 @@ def process(img_bgr, debug):
                 Flag[3] = 0
                 if Flag[2] % 20 == 19:
                     print(Fs[2])
-                    gui.typewrite(Fs[2] + " ")
-                    f.write(Fs[2] + " ")
+                    txt.append(Fs[2])
             elif key4.contains(Point(point)):
                 Flag[0] = 0
                 Flag[1] = 0
@@ -273,13 +278,11 @@ def process(img_bgr, debug):
                 Flag[3] += 1
                 if Flag[3] % 20 == 19:
                     print(Fs[3])
-                    gui.typewrite(Fs[3] + " ")
-                    f.write(Fs[3] + " ")
+                    txt.append(Fs[3])
             else:
                 Flag[4] += 1
                 if Flag[4] % 20 == 19:
                     print("!")
-                    gui.typewrite("! ")
                     f.write("!")
 
     # STEP 7
@@ -289,13 +292,12 @@ def process(img_bgr, debug):
 
     return img_result
 
-
 cascade = cv.CascadeClassifier(cv.samples.findFile("haarcascade_frontalface_alt.xml"))
 
 cap = cv.VideoCapture(0)
 
 fontpath = "C:/Users/KOSTA/Desktop/NGULIM.TTF"
-font = ImageFont.truetype(fontpath, 40)
+font = ImageFont.truetype(fontpath, 30)
 
 while True:
 
@@ -321,26 +323,31 @@ while True:
         inner_x2.append(width // 5 * (i + 1) + term + x1)
         inner_y2.append(height // 2 - term + y1)
 
+
     cv.rectangle(img_result, (x1, y1), (x2, y2), (255, 0, 0), 4)
 
     img_pil = Image.fromarray(img_result)
     draw = ImageDraw.Draw(img_pil)
 
-    for i in range(0,2):
-        draw.text((inner_x1[i], inner_y1[i]-45), Fs[i], font=font, fill=(255, 0, 0, 0))
+    for i in range(4):
+        draw.text((inner_x1[i]+20, inner_y1[i]-45), Fs[i], font=font, fill=(255, 0, 0, 0))
 
     img_result = np.array(img_pil)
 
-    for i in range(0,2):
+    for i in range(4):
         cv.rectangle(img_result, (inner_x1[i], inner_y1[i]), (inner_x2[i], inner_y2[i]), (255, 0, 0), 4)
 
-    for i in range(2,4):
-        cv.rectangle(img_result, (inner_x1[i], inner_y1[i]), (inner_x2[i], inner_y2[i]), (255, 0, 0), 4)
-        cv.putText(img_result, Fs[i], (inner_x1[i] + 5, inner_y1[i] - 15),
-                   cv.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv.LINE_AA)
+    img = np.zeros((400, 800, 3), np.uint8)
+    img_txt = Image.fromarray(img)
+    draw = ImageDraw.Draw(img_txt)
+
+    str = listToString(txt)
+    draw.text((10, 20), str, font=font, fill=(255, 255, 255, 0))
+
+    img_txt = np.array(img_txt)
 
     cv.imshow("Result", img_result)
-    # cv.imshow("memo",)
+    cv.imshow("txt", img_txt)
 
 f.close()
 cap.release()
