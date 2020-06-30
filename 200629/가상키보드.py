@@ -3,6 +3,8 @@ from shapely.geometry import Point
 import cv2 as cv
 import numpy as np
 from shapely.geometry.polygon import Polygon
+from PIL import ImageFont, ImageDraw, Image
+
 
 def detect(img, cascade):
     rects = cascade.detectMultiScale(img, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30),
@@ -13,6 +15,7 @@ def detect(img, cascade):
     rects[:, 2:] += rects[:, :2]
 
     return rects
+
 
 def removeFaceAra(img, cascade):
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -26,6 +29,7 @@ def removeFaceAra(img, cascade):
 
     return img
 
+
 def make_mask_image(img_bgr):
     img_hsv = cv.cvtColor(img_bgr, cv.COLOR_BGR2HSV)
 
@@ -38,11 +42,13 @@ def make_mask_image(img_bgr):
 
     return img_mask
 
+
 def distanceBetweenTwoPoints(start, end):
     x1, y1 = start
     x2, y2 = end
 
     return int(np.sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2)))
+
 
 def calculateAngle(A, B):
     A_norm = np.linalg.norm(A)
@@ -52,6 +58,7 @@ def calculateAngle(A, B):
     angle = np.arccos(C / (A_norm * B_norm)) * 180 / np.pi
 
     return angle
+
 
 def findMaxArea(contours):
     max_contour = None
@@ -76,6 +83,7 @@ def findMaxArea(contours):
         max_area = -1
 
     return max_area, max_contour
+
 
 def getFingerPosition(max_contour, img_result, debug):
     points1 = []
@@ -167,21 +175,35 @@ def getFingerPosition(max_contour, img_result, debug):
 
     return 1, new_points
 
-Flag=[0,0,0,0,0]
+def listToString(s):
+    str1 = " "
+    return (str1.join(s))
+
+txt = []
+
+Flag = [0, 0, 0, 0, 0]
 f = open("letter.txt", "w+")
 
-x1=40
-y1=50
-x2=600
-y2=400
-width=x2-x1
-height=y2-y1
-term =50
+x1 = 40
+y1 = 50
+x2 = 600
+y2 = 400
+width = x2 - x1
+height = y2 - y1
+term = 50
 
 Fs = ["MOM", "DAD", "LOVE", "YOU"]
+# Fs = ["엄마", "아빠", "LOVE", "YOU"]
+
+fontpath = "C:/Users/KOSTA/Desktop/NGULIM.TTF"
+font = ImageFont.truetype(fontpath, 40)
 
 def process(img_bgr, debug):
     img_result = img_bgr.copy()
+    img = np.zeros((200,400,3),np.uint8)
+
+    img_pil = Image.fromarray(img)
+    draw = ImageDraw.Draw(img_pil)
 
     k11 = (width // 5 * 1 - term + x1, height // 2 - term + y1)
     k12 = (width // 5 * 1 + term + x1, height // 2 + term + y1)
@@ -204,13 +226,14 @@ def process(img_bgr, debug):
     img_binary = make_mask_image(img_bgr)
 
     # STEP 3: all the pixels near boundary will be discarded depending upon the size of kernel
-    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))  # Elliptical Kernel
+    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (11, 11))  # Elliptical Kernel
     # MORPH_CLOSE: Dilation followed by Erosion; useful in closing small holes inside the foreground objects, or small black points on the object.
     img_binary = cv.morphologyEx(img_binary, cv.MORPH_CLOSE, kernel, 1)
-    cv.imshow("Binary", img_binary)
+    #cv.imshow("Binary", img_binary)
 
     # STEP 4
-    contours, hierarchy = cv.findContours(img_binary, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)  # finds contours in a binary image where each contour is stored as a vector of points
+    contours, hierarchy = cv.findContours(img_binary, cv.RETR_EXTERNAL,
+                                          cv.CHAIN_APPROX_SIMPLE)  # finds contours in a binary image where each contour is stored as a vector of points
 
     if debug:
         for cnt in contours:
@@ -233,19 +256,17 @@ def process(img_bgr, debug):
             if key1.contains(Point(point)):
                 # print(F1)
                 Flag[0] += 1
-                if Flag[0]%20 == 19:
+                if Flag[0] % 20 == 19:
                     print(Fs[0])
-                    gui.typewrite(Fs[0] + " ")
-                    f.write(Fs[0] + " ")
+                    txt.append(Fs[0])
             elif key2.contains(Point(point)):
                 Flag[0] = 0
                 Flag[1] += 1
                 Flag[2] = 0
                 Flag[3] = 0
-                if Flag[1]%20 == 19:
+                if Flag[1] % 20 == 19:
                     print(Fs[1])
-                    gui.typewrite(Fs[1]+ " ")
-                    f.write(Fs[1] + " ")
+                    txt.append(Fs[1])
             elif key3.contains(Point(point)):
                 Flag[0] = 0
                 Flag[1] = 0
@@ -253,8 +274,7 @@ def process(img_bgr, debug):
                 Flag[3] = 0
                 if Flag[2] % 20 == 19:
                     print(Fs[2])
-                    gui.typewrite(Fs[2] + " ")
-                    f.write(Fs[2] + " ")
+                    txt.append(Fs[2])
             elif key4.contains(Point(point)):
                 Flag[0] = 0
                 Flag[1] = 0
@@ -262,25 +282,21 @@ def process(img_bgr, debug):
                 Flag[3] += 1
                 if Flag[3] % 20 == 19:
                     print(Fs[3])
-                    gui.typewrite(Fs[3] + " ")
-                    f.write(Fs[3] + " ")
+                    txt.append(Fs[3])
             else:
                 Flag[4] += 1
                 if Flag[4] % 20 == 19:
                     print("!")
-                    gui.typewrite("! ")
                     f.write("!")
 
     # STEP 7
     if ret > 0 and len(points) > 0:
         for point in points:
-            cv.circle(img_result, point, 20, [255, 0, 255], 5)
+            cv.circle(img_result, point, 10, [255, 0, 255], 5)
 
     return img_result
 
 cascade = cv.CascadeClassifier(cv.samples.findFile("haarcascade_frontalface_alt.xml"))
-
-# cap = cv.VideoCapture('test.avi')
 
 cap = cv.VideoCapture(0)
 
@@ -297,26 +313,31 @@ while True:
     if key == 27:
         break
 
-    inner_x1=[]
-    inner_y1=[]
-    inner_x2=[]
-    inner_y2=[]
+    inner_x1 = []
+    inner_y1 = []
+    inner_x2 = []
+    inner_y2 = []
 
     for i in range(4):
-        inner_x1.append(width//5*(i+1)-term+x1)
-        inner_y1.append(height//2+term+y1)
-        inner_x2.append(width//5*(i+1)+term+x1)
-        inner_y2.append(height//2-term+y1)
+        inner_x1.append(width // 5 * (i + 1) - term + x1)
+        inner_y1.append(height // 2 + term + y1)
+        inner_x2.append(width // 5 * (i + 1) + term + x1)
+        inner_y2.append(height // 2 - term + y1)
 
-    cv.rectangle(img_result,(x1,y1),(x2,y2),(255,0,0),4)
-    
+    cv.rectangle(img_result, (x1, y1), (x2, y2), (255, 0, 0), 4)
+
     for i in range(4):
-        cv.rectangle(img_result,(inner_x1[i],inner_y1[i]),(inner_x2[i],inner_y2[i]),(255,0,0),4)
-        cv.putText(img_result, Fs[i], (inner_x1[i]+5,inner_y1[i]-15),
+        cv.rectangle(img_result, (inner_x1[i], inner_y1[i]), (inner_x2[i], inner_y2[i]), (255, 0, 0), 4)
+        cv.putText(img_result, Fs[i], (inner_x1[i] + 5, inner_y1[i] - 15),
                    cv.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv.LINE_AA)
 
+    img_txt = np.zeros((400, 800, 3), np.uint8)
+
+    str = listToString(txt)
+    cv.putText(img_txt, "{}".format(str), (10,30), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv.LINE_AA)
+
     cv.imshow("Result", img_result)
-    # cv.imshow("memo",)
+    cv.imshow("txt", img_txt)
 
 f.close()
 cap.release()
