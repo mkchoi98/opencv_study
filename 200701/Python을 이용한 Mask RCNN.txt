@@ -1,2 +1,3 @@
 블로그 참고
 https://reyrei.tistory.com/11
+- tensorflow 버전때문에 에러발생
