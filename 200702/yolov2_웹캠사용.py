@@ -9,7 +9,6 @@ import time
 # cv2.cor
 #
 cv2.ocl.setUseOpenCL(True)
-#net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
 net = cv2.dnn.readNet("yolov2.weights", "yolo.cfg")
 # net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 # net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
@@ -25,7 +24,6 @@ output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
 camera = cv2.VideoCapture(0)
-#camera = cv2.VideoCapture("videofile.mp4")
 
 while True:
     # grab the current frame
