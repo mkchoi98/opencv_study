@@ -1,4 +1,0 @@
-블로그 참고
-https://reyrei.tistory.com/11
-- tensorflow 버전때문에 에러발생
-- tensorflow-gpu v1.15.0, keras v2.3.1 로 변경하였더니 결과는 잘 나온다. 근데 gpu를 사용하는것인지는 잘 모르겠음 ㅠ
