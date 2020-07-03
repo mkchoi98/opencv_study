@@ -1,6 +1,5 @@
 ## Mask R-CNN
-블로그 참고 
-[링크](https://reyrei.tistory.com/11)
+[블로그](https://reyrei.tistory.com/11) 참고 
 
 - tensorflow-gpu v1.15.0 사용
 - keras v2.3.1 사용
